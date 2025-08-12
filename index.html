@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Translator & Analyzer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="logo"><span>My</span>Company AI Tool</div>
+    </header>
+
+    <div class="card">
+        <h2>Configuration</h2>
+        <div class="form-group">
+            <label for="modelSelect">Select AI Model</label>
+            <select id="modelSelect">
+                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Recommended)</option>
+                <option value="gemini-pro">Gemini Pro</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Text Translator</h2>
+        <div class="form-group">
+            <label for="languageSelect">Translate to</label>
+            <select id="languageSelect"></select>
+        </div>
+        <div class="form-group">
+            <label for="sourceText">Original Text</label>
+            <textarea id="sourceText" placeholder="Enter text to translate..."></textarea>
+        </div>
+        <button id="translateBtn">Translate</button>
+        <div class="form-group" style="margin-top: 20px;">
+            <label for="translatedText">Translated Result</label>
+            <div class="result-container">
+                <textarea id="translatedText" readonly placeholder="Translation will appear here..."></textarea>
+                <button class="copy-button" data-target="translatedText">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Customer Intent Analyzer</h2>
+        <div class="form-group">
+            <label for="customerMessage">Customer's Message</label>
+            <textarea id="customerMessage" placeholder="Paste customer's message here..."></textarea>
+        </div>
+        <button id="analyzeBtn">Analyze Intent</button>
+        <div class="form-group" style="margin-top: 20px;">
+            <label for="analysisResult">Analysis Result</label>
+             <div class="result-container">
+                <textarea id="analysisResult" readonly placeholder="Analysis will appear here..."></textarea>
+                <button class="copy-button" data-target="analysisResult">Copy</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
