@@ -82,15 +82,20 @@ button {
 button:hover:not(:disabled) { background-color: var(--button-hover-bg); color: #fff; }
 button:disabled { background-color: #444; color: #888; cursor: not-allowed; }
 
-.result-container { position: relative; }
+/* CSS MỚI CHO NÚT COPY */
+.copy-button-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
 .copy-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
     padding: 5px 10px;
     font-size: 0.8em;
     background-color: rgba(255, 255, 255, 0.1);
     color: var(--on-surface-color);
     border: 1px solid var(--border-color);
 }
-.copy-button:hover { background-color: rgba(255, 255, 255, 0.2); }
+.copy-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
