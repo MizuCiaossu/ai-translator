@@ -11,7 +11,7 @@
 <div class="container">
     <header>
         <div class="logo">
-            <img src="public/logo.jpeg" alt="HG Translation Logo">
+            <img src="/logo.jpeg" alt="HG Translation Logo">
         </div>
     </header>
 
@@ -19,15 +19,16 @@
         <h2>Configuration</h2>
         <div class="form-group">
             <label for="modelSelect">Select AI Model</label>
+            <!-- CẬP NHẬT TẠI ĐÂY -->
             <select id="modelSelect">
-                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Recommended)</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash</option>
                 <option value="gemini-pro">Gemini Pro</option>
             </select>
         </div>
     </div>
 
     <div class="card">
-        <!-- THAY ĐỔI 1: Đổi tiêu đề -->
         <h2>Dịch Tư vấn</h2>
         <div class="form-group">
             <label for="languageSelect">Translate to</label>
@@ -48,7 +49,6 @@
     </div>
 
     <div class="card">
-        <!-- THAY ĐỔI 2: Đổi tiêu đề -->
         <h2>Dịch ý của khách</h2>
         <div class="form-group">
             <label for="customerMessage">Customer's Message</label>
