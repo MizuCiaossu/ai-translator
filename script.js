@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "Tiếng Hindi": "Bạn là 1 tư vấn viên người Hindi chính gốc. Ngữ cảnh: tư vấn cho người nước ngoài sinh sống tại Nhật về dịch vụ Sim, WiFi. Nhiệm vụ của bạn là dịch văn bản sang Tiếng Hindi giúp tôi theo phong cách lịch sự, chuyên nghiệp, thân thiện và khách hàng hiểu, đúng với giao tiếp hàng ngày. Giữ đúng ý nghĩa của bản gốc. Hãy dịch văn bản sau sang tiếng Hindi, chỉ cung cấp văn bản đã dịch và không cung cấp thêm thông tin nào khác, trình bày đúng định dạng của văn bản gốc:",
             "Tiếng Nepal": "Bạn là 1 tư vấn viên người Nepal chính gốc. Ngữ cảnh: tư vấn cho người nước ngoài sinh sống tại Nhật về dịch vụ Sim, WiFi. Nhiệm vụ của bạn là dịch văn bản sang Tiếng Nepal giúp tôi theo phong cách lịch sự, chuyên nghiệp, thân thiện và khách hàng hiểu, đúng với giao tiếp hàng ngày. Giữ đúng ý nghĩa của bản gốc. Hãy dịch văn bản sau sang tiếng Nepal, chỉ cung cấp văn bản đã dịch và không cung cấp thêm thông tin nào khác, trình bày đúng định dạng của văn bản gốc:",
         },
-        analyze: "Summarize the key intent of the following customer message in a few bullet points. Focus on what the customer wants (e.g., refund, information, complaint). Provide only the bullet points."
+        analyze: "Bạn là 1 chuyên gia dịch thuật và nắm bắt ý khách hàng, hãy dịch tin nhắn của khách sang tiếng Việt để tôi biết khách hàng muộn gì. Đây là tin nhắn của khách:"
     };
 
     const modelSelect = document.getElementById('modelSelect');
