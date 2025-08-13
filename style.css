@@ -33,8 +33,11 @@ header {
     padding-bottom: 15px;
 }
 
-.logo { font-size: 1.5em; font-weight: bold; }
-.logo span { color: var(--primary-color); }
+/* THAY ĐỔI: CSS cho logo */
+.logo img {
+    height: 40px; /* Bạn có thể thay đổi chiều cao này cho phù hợp với logo */
+    display: block;
+}
 
 .card {
     background-color: var(--surface-color);
@@ -82,7 +85,6 @@ button {
 button:hover:not(:disabled) { background-color: var(--button-hover-bg); color: #fff; }
 button:disabled { background-color: #444; color: #888; cursor: not-allowed; }
 
-/* CSS MỚI CHO NÚT COPY */
 .copy-button-wrapper {
     display: flex;
     justify-content: flex-end;
