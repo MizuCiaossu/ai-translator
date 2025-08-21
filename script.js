@@ -17,16 +17,28 @@ document.addEventListener('DOMContentLoaded', () => {
         analyze: "Bạn là 1 chuyên gia dịch thuật và nắm bắt ý khách hàng, hãy dịch tin nhắn của khách sang tiếng Việt để tôi biết khách hàng muộn gì. Kết quả trình bày ngắn gọn tin nhắn được dịch sang tiếng Việt và ý của khách, xuống dòng giữa các ý. Đây là tin nhắn của khách:"
     };
 
-    const modelSelect = document.getElementById('modelSelect');
+    const TRANSLATION_MODELS = {
+        openrouter_deepseek: "deepseek/deepseek-chat" // Bạn có thể đổi model của OpenRouter ở đây
+    };
+
+
+    // --- LẤY CÁC PHẦN TỬ TRÊN GIAO DIỆN (DOM) ---
+    const translationPlatform = document.getElementById('translationPlatform');
     const languageSelect = document.getElementById('languageSelect');
     const sourceText = document.getElementById('sourceText');
     const translateBtn = document.getElementById('translateBtn');
     const translatedText = document.getElementById('translatedText');
+    
     const customerMessage = document.getElementById('customerMessage');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const analysisResult = document.getElementById('analysisResult');
+    
     const copyButtons = document.querySelectorAll('.copy-button');
 
+
+    // --- CÁC HÀM CHÍNH ---
+
+    // Hàm chung để gọi API backend
     async function callApi(payload) {
         try {
             const response = await fetch('/api/translate', {
@@ -41,66 +53,93 @@ document.addEventListener('DOMContentLoaded', () => {
             return data.text;
         } catch (error) {
             console.error("API Call Error:", error);
-            return `Error: ${error.message}`;
+            return `Lỗi: ${error.message}`;
         }
     }
 
+    // Xử lý sự kiện nhấn nút "Dịch"
     async function handleTranslate() {
-        if (!sourceText.value) {
-            alert("Please enter text to translate.");
+        if (!sourceText.value.trim()) {
+            alert("Vui lòng nhập văn bản cần dịch.");
             return;
         }
-
+        
+        const platform = translationPlatform.value;
         const promptTemplate = PROMPTS.translate[languageSelect.value];
         const fullPrompt = `${promptTemplate}\n\n"${sourceText.value}"`;
 
-        translateBtn.textContent = 'Translating...';
-        translateBtn.disabled = true;
-        translatedText.value = 'Waiting for response...';
+        let payload = { prompt: fullPrompt };
 
-        const result = await callApi({
-            prompt: fullPrompt,
-            model: modelSelect.value
-        });
+        // Xây dựng payload (dữ liệu gửi đi) dựa trên nền tảng được chọn
+        if (platform === 'groq') {
+            payload.service = 'groq_translate';
+        } else if (platform === 'openrouter_deepseek') {
+            payload.service = 'openrouter_translate';
+            payload.model = TRANSLATION_MODELS.openrouter_deepseek;
+        }
+
+        // Cập nhật giao diện để báo cho người dùng biết là đang xử lý
+        translateBtn.textContent = 'Đang dịch...';
+        translateBtn.disabled = true;
+        translatedText.value = 'Đang chờ phản hồi...';
+
+        const result = await callApi(payload);
         translatedText.value = result;
 
-        translateBtn.textContent = 'Translate';
+        // Khôi phục lại trạng thái ban đầu của nút
+        translateBtn.textContent = 'Dịch';
         translateBtn.disabled = false;
     }
 
+    // Xử lý sự kiện nhấn nút "Phân tích"
     async function handleAnalyze() {
-        if (!customerMessage.value) {
-            alert("Please enter a customer message.");
+        if (!customerMessage.value.trim()) {
+            alert("Vui lòng nhập tin nhắn của khách hàng.");
             return;
         }
+
         const fullPrompt = `${PROMPTS.analyze}\n\nCustomer Message:\n"${customerMessage.value}"`;
         
-        analyzeBtn.textContent = 'Analyzing...';
+        analyzeBtn.textContent = 'Đang phân tích...';
         analyzeBtn.disabled = true;
-        analysisResult.value = 'Waiting for response...';
-
+        analysisResult.value = 'Đang chờ phản hồi...';
+        
+        // Luôn gửi yêu cầu đến service của Gemini cho chức năng này
         const result = await callApi({
             prompt: fullPrompt,
-            model: modelSelect.value
+            service: 'gemini_analyze',
+            model: 'gemini-2.0-flash' // Model cố định cho chức năng phân tích
         });
         analysisResult.value = result;
 
-        analyzeBtn.textContent = 'Analyze Intent';
+        analyzeBtn.textContent = 'Phân tích';
         analyzeBtn.disabled = false;
     }
 
+
+    // --- CÁC HÀM PHỤ TRỢ ---
+
+    // Xử lý sự kiện nhấn nút "Sao chép"
     function handleCopy(event) {
         const targetId = event.target.dataset.target;
         const textToCopy = document.getElementById(targetId).value;
         if (!textToCopy) return;
+
         navigator.clipboard.writeText(textToCopy).then(() => {
             const originalText = event.target.textContent;
-            event.target.textContent = 'Copied!';
-            setTimeout(() => { event.target.textContent = originalText; }, 1500);
+            event.target.textContent = 'Đã sao chép!';
+            setTimeout(() => {
+                event.target.textContent = originalText;
+            }, 1500);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            alert('Sao chép thất bại.');
         });
     }
 
+    // Hàm khởi tạo ứng dụng khi trang được tải xong
     function init() {
+        // Đổ danh sách ngôn ngữ vào dropdown
         const languages = Object.keys(PROMPTS.translate);
         languages.forEach(lang => {
             const option = document.createElement('option');
@@ -109,10 +148,12 @@ document.addEventListener('DOMContentLoaded', () => {
             languageSelect.appendChild(option);
         });
         
+        // Gán sự kiện cho các nút bấm
         translateBtn.addEventListener('click', handleTranslate);
         analyzeBtn.addEventListener('click', handleAnalyze);
         copyButtons.forEach(button => button.addEventListener('click', handleCopy));
     }
 
+    // Chạy hàm khởi tạo
     init();
 });
