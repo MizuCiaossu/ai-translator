@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div class="container">
     <header>
         <div class="logo">
@@ -16,56 +15,49 @@
     </header>
 
     <div class="card">
-        <h2>Configuration</h2>
+        <h2>Dịch Tư vấn</h2>
+        <!-- BỔ SUNG: Dropdown chọn nền tảng dịch -->
         <div class="form-group">
-            <label for="modelSelect">Select AI Model</label>
-            <!-- CẬP NHẬT TẠI ĐÂY -->
-            <select id="modelSelect">
-                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash</option>
-                <option value="gemini-pro">Gemini Pro</option>
+            <label for="translationPlatform">Chọn Nền tảng Dịch</label>
+            <select id="translationPlatform">
+                <option value="groq">Groq (Llama3)</option>
+                <option value="openrouter_deepseek">OpenRouter (Deepseek)</option>
             </select>
         </div>
-    </div>
-
-    <div class="card">
-        <h2>Dịch Tư vấn</h2>
         <div class="form-group">
-            <label for="languageSelect">Translate to</label>
+            <label for="languageSelect">Dịch sang ngôn ngữ</label>
             <select id="languageSelect"></select>
         </div>
         <div class="form-group">
-            <label for="sourceText">Original Text</label>
-            <textarea id="sourceText" placeholder="Enter text to translate..."></textarea>
+            <label for="sourceText">Văn bản gốc</label>
+            <textarea id="sourceText" placeholder="Nhập văn bản cần dịch..."></textarea>
         </div>
-        <button id="translateBtn">Translate</button>
+        <button id="translateBtn">Dịch</button>
         <div class="form-group" style="margin-top: 20px;">
-            <label for="translatedText">Translated Result</label>
-            <textarea id="translatedText" readonly placeholder="Translation will appear here..."></textarea>
+            <label for="translatedText">Kết quả dịch</label>
+            <textarea id="translatedText" readonly placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
             <div class="copy-button-wrapper">
-                <button class="copy-button" data-target="translatedText">Copy</button>
+                <button class="copy-button" data-target="translatedText">Sao chép</button>
             </div>
         </div>
     </div>
 
     <div class="card">
-        <h2>Dịch ý của khách</h2>
+        <h2>Dịch ý của khách (Model: Gemini 2.0 Flash)</h2>
         <div class="form-group">
-            <label for="customerMessage">Customer's Message</label>
-            <textarea id="customerMessage" placeholder="Paste customer's message here..."></textarea>
+            <label for="customerMessage">Tin nhắn của khách</label>
+            <textarea id="customerMessage" placeholder="Dán tin nhắn của khách vào đây..."></textarea>
         </div>
-        <button id="analyzeBtn">Analyze Intent</button>
+        <button id="analyzeBtn">Phân tích</button>
         <div class="form-group" style="margin-top: 20px;">
-            <label for="analysisResult">Analysis Result</label>
-            <textarea id="analysisResult" readonly placeholder="Analysis will appear here..."></textarea>
+            <label for="analysisResult">Kết quả phân tích</label>
+            <textarea id="analysisResult" readonly placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
             <div class="copy-button-wrapper">
-                <button class="copy-button" data-target="analysisResult">Copy</button>
+                <button class="copy-button" data-target="analysisResult">Sao chép</button>
             </div>
         </div>
     </div>
-
 </div>
-
 <script src="script.js"></script>
 </body>
 </html>
