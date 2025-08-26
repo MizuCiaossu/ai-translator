@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
         analyze: "Bạn là 1 chuyên gia dịch thuật và nắm bắt ý khách hàng, hãy dịch tin nhắn của khách sang tiếng Việt để tôi biết khách hàng muộn gì. Kết quả trình bày ngắn gọn tin nhắn được dịch sang tiếng Việt và ý của khách, xuống dòng giữa các ý. Đây là tin nhắn của khách:"
     };
 
-    const modelSelect = document.getElementById('modelSelect');
+    // --- LẤY CÁC PHẦN TỬ DOM ---
+    const geminiModelSelect = document.getElementById('geminiModelSelect');
     const languageSelect = document.getElementById('languageSelect');
     const sourceText = document.getElementById('sourceText');
     const translateBtn = document.getElementById('translateBtn');
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const analysisResult = document.getElementById('analysisResult');
     const copyButtons = document.querySelectorAll('.copy-button');
 
+    // --- CÁC HÀM CHÍNH ---
     async function callApi(payload) {
         try {
             const response = await fetch('/api/translate', {
@@ -35,67 +37,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload),
             });
             const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'An unknown error occurred.');
-            }
+            if (!response.ok) { throw new Error(data.error || 'An unknown error occurred.'); }
             return data.text;
         } catch (error) {
             console.error("API Call Error:", error);
-            return `Error: ${error.message}`;
+            return `Lỗi: ${error.message}`;
         }
     }
 
     async function handleTranslate() {
-        if (!sourceText.value) {
-            alert("Please enter text to translate.");
-            return;
-        }
-
+        if (!sourceText.value.trim()) { return; }
+        
         const promptTemplate = PROMPTS.translate[languageSelect.value];
         const fullPrompt = `${promptTemplate}\n\n"${sourceText.value}"`;
+        const selectedModel = geminiModelSelect.value; // Lấy model từ dropdown
 
-        translateBtn.textContent = 'Translating...';
+        translateBtn.textContent = 'Đang dịch...';
         translateBtn.disabled = true;
-        translatedText.value = 'Waiting for response...';
-
+        translatedText.value = 'Đang chờ phản hồi...';
+        
         const result = await callApi({
             prompt: fullPrompt,
-            model: modelSelect.value
+            model: selectedModel // Gửi model đã chọn lên backend
         });
-        translatedText.value = result;
 
-        translateBtn.textContent = 'Translate';
+        translatedText.value = result;
+        translateBtn.textContent = 'Dịch';
         translateBtn.disabled = false;
     }
 
     async function handleAnalyze() {
-        if (!customerMessage.value) {
-            alert("Please enter a customer message.");
-            return;
-        }
+        if (!customerMessage.value.trim()) { return; }
+        
         const fullPrompt = `${PROMPTS.analyze}\n\nCustomer Message:\n"${customerMessage.value}"`;
         
-        analyzeBtn.textContent = 'Analyzing...';
+        analyzeBtn.textContent = 'Đang phân tích...';
         analyzeBtn.disabled = true;
-        analysisResult.value = 'Waiting for response...';
-
+        analysisResult.value = 'Đang chờ phản hồi...';
+        
         const result = await callApi({
             prompt: fullPrompt,
-            model: modelSelect.value
+            model: 'gemini-2.0-flash' // Cố định model cho chức năng này
         });
-        analysisResult.value = result;
 
-        analyzeBtn.textContent = 'Analyze Intent';
+        analysisResult.value = result;
+        analyzeBtn.textContent = 'Phân tích';
         analyzeBtn.disabled = false;
     }
 
+    // --- CÁC HÀM PHỤ TRỢ ---
     function handleCopy(event) {
         const targetId = event.target.dataset.target;
         const textToCopy = document.getElementById(targetId).value;
         if (!textToCopy) return;
         navigator.clipboard.writeText(textToCopy).then(() => {
             const originalText = event.target.textContent;
-            event.target.textContent = 'Copied!';
+            event.target.textContent = 'Đã sao chép!';
             setTimeout(() => { event.target.textContent = originalText; }, 1500);
         });
     }
