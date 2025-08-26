@@ -21,19 +21,12 @@
             <select id="translationPlatform">
                 <option value="groq">Groq (Llama3)</option>
                 <option value="openrouter_deepseek">OpenRouter (Deepseek)</option>
-                <!-- CẬP NHẬT 1: Thêm "selected" để đặt làm mặc định -->
-                <option value="gemini" selected>Google (Gemini)</option>
+                <option value="gemini" selected>Google (Gemini 2.0 Flash)</option>
             </select>
         </div>
         
-        <!-- CẬP NHẬT 2: Đổi "display: none" thành "display: block" để hiện mặc định -->
-        <div class="form-group" id="geminiModelWrapper" style="display: block;">
-            <label for="geminiModelSelect">Chọn Model Gemini</label>
-            <select id="geminiModelSelect">
-                <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Chất lượng cao)</option>
-                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Tốc độ nhanh)</option>
-            </select>
-        </div>
+        <!-- LOẠI BỎ: Dropdown chọn model Gemini đã được xóa đi cho đơn giản -->
+
         <div class="form-group">
             <label for="languageSelect">Dịch sang ngôn ngữ</label>
             <select id="languageSelect"></select>
