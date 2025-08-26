@@ -17,12 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         analyze: "Bạn là 1 chuyên gia dịch thuật và nắm bắt ý khách hàng, hãy dịch tin nhắn của khách sang tiếng Việt để tôi biết khách hàng muộn gì. Kết quả trình bày ngắn gọn tin nhắn được dịch sang tiếng Việt và ý của khách, xuống dòng giữa các ý. Đây là tin nhắn của khách:"
     };
 
-    const TRANSLATION_MODELS = {
-        openrouter_deepseek: "deepseek/deepseek-chat"
-    };
-
-    // --- LẤY CÁC PHẦN TỬ TRÊN GIAO DIỆN (DOM) ---
-    const translationPlatform = document.getElementById('translationPlatform');
+    const modelSelect = document.getElementById('modelSelect');
     const languageSelect = document.getElementById('languageSelect');
     const sourceText = document.getElementById('sourceText');
     const translateBtn = document.getElementById('translateBtn');
@@ -32,9 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const analysisResult = document.getElementById('analysisResult');
     const copyButtons = document.querySelectorAll('.copy-button');
 
-    // --- CÁC HÀM CHÍNH ---
-
-    // Hàm chung để gọi API backend
     async function callApi(payload) {
         try {
             const response = await fetch('/api/translate', {
@@ -43,76 +35,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload),
             });
             const data = await response.json();
-            if (!response.ok) { throw new Error(data.error || 'An unknown error occurred.'); }
+            if (!response.ok) {
+                throw new Error(data.error || 'An unknown error occurred.');
+            }
             return data.text;
         } catch (error) {
             console.error("API Call Error:", error);
-            return `Lỗi: ${error.message}`;
+            return `Error: ${error.message}`;
         }
     }
 
-    // Xử lý sự kiện nhấn nút "Dịch"
     async function handleTranslate() {
-        if (!sourceText.value.trim()) { return; }
-        
-        const platform = translationPlatform.value;
-        const promptTemplate = PROMPTS.translate[languageSelect.value];
-        const fullPrompt = `${promptTemplate}\n\n"${sourceText.value}"`;
-        let payload = { prompt: fullPrompt };
-
-        if (platform === 'groq') {
-            payload.service = 'groq_translate';
-        } else if (platform === 'openrouter_deepseek') {
-            payload.service = 'openrouter_translate';
-            payload.model = TRANSLATION_MODELS.openrouter_deepseek;
-        } else if (platform === 'gemini') {
-            payload.service = 'gemini';
-            payload.model = 'gemini-2.0-flash'; // Sử dụng model này làm mặc định cho Gemini dịch thuật
+        if (!sourceText.value) {
+            alert("Please enter text to translate.");
+            return;
         }
 
-        translateBtn.textContent = 'Đang dịch...';
+        const promptTemplate = PROMPTS.translate[languageSelect.value];
+        const fullPrompt = `${promptTemplate}\n\n"${sourceText.value}"`;
+
+        translateBtn.textContent = 'Translating...';
         translateBtn.disabled = true;
-        translatedText.value = 'Đang chờ phản hồi...';
-        const result = await callApi(payload);
+        translatedText.value = 'Waiting for response...';
+
+        const result = await callApi({
+            prompt: fullPrompt,
+            model: modelSelect.value
+        });
         translatedText.value = result;
-        translateBtn.textContent = 'Dịch';
+
+        translateBtn.textContent = 'Translate';
         translateBtn.disabled = false;
     }
 
-    // Xử lý sự kiện nhấn nút "Phân tích"
     async function handleAnalyze() {
-        if (!customerMessage.value.trim()) { return; }
+        if (!customerMessage.value) {
+            alert("Please enter a customer message.");
+            return;
+        }
         const fullPrompt = `${PROMPTS.analyze}\n\nCustomer Message:\n"${customerMessage.value}"`;
-        analyzeBtn.textContent = 'Đang phân tích...';
+        
+        analyzeBtn.textContent = 'Analyzing...';
         analyzeBtn.disabled = true;
-        analysisResult.value = 'Đang chờ phản hồi...';
+        analysisResult.value = 'Waiting for response...';
+
         const result = await callApi({
             prompt: fullPrompt,
-            service: 'gemini',
-            model: 'gemini-2.0-flash' 
+            model: modelSelect.value
         });
         analysisResult.value = result;
-        analyzeBtn.textContent = 'Phân tích';
+
+        analyzeBtn.textContent = 'Analyze Intent';
         analyzeBtn.disabled = false;
     }
 
-    // --- CÁC HÀM PHỤ TRỢ ---
-
-    // Xử lý sự kiện nhấn nút "Sao chép"
     function handleCopy(event) {
         const targetId = event.target.dataset.target;
         const textToCopy = document.getElementById(targetId).value;
         if (!textToCopy) return;
         navigator.clipboard.writeText(textToCopy).then(() => {
             const originalText = event.target.textContent;
-            event.target.textContent = 'Đã sao chép!';
+            event.target.textContent = 'Copied!';
             setTimeout(() => { event.target.textContent = originalText; }, 1500);
         });
     }
 
-    // Hàm khởi tạo ứng dụng khi trang được tải xong
     function init() {
-        // Đổ danh sách ngôn ngữ vào dropdown (SẼ HOẠT ĐỘNG TRỞ LẠI BÌNH THƯỜNG)
         const languages = Object.keys(PROMPTS.translate);
         languages.forEach(lang => {
             const option = document.createElement('option');
@@ -121,12 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
             languageSelect.appendChild(option);
         });
         
-        // Gán sự kiện cho các nút bấm
         translateBtn.addEventListener('click', handleTranslate);
         analyzeBtn.addEventListener('click', handleAnalyze);
         copyButtons.forEach(button => button.addEventListener('click', handleCopy));
     }
 
-    // Chạy hàm khởi tạo
     init();
 });
