@@ -16,12 +16,21 @@
 
     <div class="card">
         <h2>Dịch Tư vấn</h2>
-        <!-- BỔ SUNG: Dropdown chọn nền tảng dịch -->
         <div class="form-group">
             <label for="translationPlatform">Chọn Nền tảng Dịch</label>
             <select id="translationPlatform">
                 <option value="groq">Groq (Llama3)</option>
                 <option value="openrouter_deepseek">OpenRouter (Deepseek)</option>
+                <!-- CẬP NHẬT: Thêm Gemini vào đây -->
+                <option value="gemini">Google (Gemini)</option>
+            </select>
+        </div>
+        <!-- CẬP NHẬT: Thêm dropdown chọn model Gemini, ẩn đi lúc đầu -->
+        <div class="form-group" id="geminiModelWrapper" style="display: none;">
+            <label for="geminiModelSelect">Chọn Model Gemini</label>
+            <select id="geminiModelSelect">
+                <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Chất lượng cao)</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Tốc độ nhanh)</option>
             </select>
         </div>
         <div class="form-group">
@@ -44,6 +53,7 @@
 
     <div class="card">
         <h2>Dịch ý của khách (Model: Gemini 2.0 Flash)</h2>
+        <!-- Phần này giữ nguyên không đổi -->
         <div class="form-group">
             <label for="customerMessage">Tin nhắn của khách</label>
             <textarea id="customerMessage" placeholder="Dán tin nhắn của khách vào đây..."></textarea>
