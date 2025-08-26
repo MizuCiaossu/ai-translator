@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const PROMPTS = {
         translate: {
-            "Tiếng Anh": "Bạn là 1 tư vấn viên người Mỹ chính gốc. Ngữ cảnh: tư vấn cho người nước ngoài sinh sống tại Nhật về dịch vụ Sim, WiFi. Nhiệm vụ của bạn là dịch văn bản sang Tiếng Anh giúp tôi theo phong cách lịch sự, chuyên nghiệp, thân thiện và khách hàng hiểu, đúng với giao tiếp hàng ngày. Giữ đúng ý nghĩa của bản gốc. Hãy dịch văn bản sau sang tiếng Anh, chỉ cung cấp văn bản đã dịch và không cung cấp thêm thông tin nào khác, trình bày đúng định dạng của văn bản gốc:",
+            "Tiếng Anh": "Bạn là 1 tư vấn viên người Mỹ chính gốc. Ngữ cảnh: tư vấn cho người nước ngoài sinh sống tại Nhật về dịch vụ Sim, WiFi. Nhiệm vụ của bạn là dịch văn bản sang Tiếng Anh giúp tôi theo phong cách lịch sự, chuyên nghiệp, thân thiện và khách hàng hiểu, đúng với giao tiếp hàng ngày. Lưu ý quan trọn: Giữ đúng ý nghĩa của bản gốc. Hãy dịch văn bản sau sang tiếng Anh, chỉ cung cấp văn bản đã dịch và không cung cấp thêm thông tin nào khác, trình bày đúng định dạng của văn bản gốc:",
             "Tiếng Tây Ban Nha": "Bạn là 1 tư vấn viên người Tây ban Nha chính gốc. Ngữ cảnh: tư vấn cho người nước ngoài sinh sống tại Nhật về dịch vụ Sim, WiFi. Nhiệm vụ của bạn là dịch văn bản sang Tiếng Tây Ban Nha giúp tôi theo phong cách lịch sự, chuyên nghiệp, thân thiện và khách hàng hiểu, đúng với giao tiếp hàng ngày. Giữ đúng ý nghĩa của bản gốc. Hãy dịch văn bản sau sang tiếng Tây Ban Nha, chỉ cung cấp văn bản đã dịch và không cung cấp thêm thông tin nào khác, trình bày đúng định dạng của văn bản gốc:",
             "Tiếng Bồ Đào Nha (Brazil)": "Bạn là 1 tư vấn viên người Brazil chính gốc. Ngữ cảnh: tư vấn cho người nước ngoài sinh sống tại Nhật về dịch vụ Sim, WiFi. Nhiệm vụ của bạn là dịch văn bản sang Tiếng Bồ Đào Nha (Brazil) giúp tôi theo phong cách lịch sự, chuyên nghiệp, thân thiện và khách hàng hiểu, đúng với giao tiếp hàng ngày. Giữ đúng ý nghĩa của bản gốc. Hãy dịch văn bản sau sang tiếng Tiếng Bồ Đào Nha (Brazil), chỉ cung cấp văn bản đã dịch và không cung cấp thêm thông tin nào khác, trình bày đúng định dạng của văn bản gốc:",
             "Tiếng Filipino": "Bạn là 1 tư vấn viên người Filipino chính gốc. Ngữ cảnh: tư vấn cho người nước ngoài sinh sống tại Nhật về dịch vụ Sim, WiFi. Nhiệm vụ của bạn là dịch văn bản sang Tiếng Filipino giúp tôi theo phong cách lịch sự, chuyên nghiệp, thân thiện và khách hàng hiểu, đúng với giao tiếp hàng ngày. Giữ đúng ý nghĩa của bản gốc. Hãy dịch văn bản sau sang tiếng Filipino, chỉ cung cấp văn bản đã dịch và không cung cấp thêm thông tin nào khác, trình bày đúng định dạng của văn bản gốc:",
@@ -22,23 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 
-    // --- LẤY CÁC PHẦN TỬ TRÊN GIAO DIỆN (DOM) ---
+    // --- LẤY CÁC PHẦN TỬ DOM (thêm 2 mục của Gemini) ---
     const translationPlatform = document.getElementById('translationPlatform');
+    const geminiModelWrapper = document.getElementById('geminiModelWrapper'); // Vỏ bọc của dropdown
+    const geminiModelSelect = document.getElementById('geminiModelSelect'); // Dropdown chọn model Gemini
     const languageSelect = document.getElementById('languageSelect');
     const sourceText = document.getElementById('sourceText');
     const translateBtn = document.getElementById('translateBtn');
     const translatedText = document.getElementById('translatedText');
-    
     const customerMessage = document.getElementById('customerMessage');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const analysisResult = document.getElementById('analysisResult');
-    
     const copyButtons = document.querySelectorAll('.copy-button');
 
-
-    // --- CÁC HÀM CHÍNH ---
-
-    // Hàm chung để gọi API backend
+    // Hàm gọi API backend chung (Giữ nguyên không đổi)
     async function callApi(payload) {
         try {
             const response = await fetch('/api/translate', {
@@ -47,9 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload),
             });
             const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'An unknown error occurred.');
-            }
+            if (!response.ok) { throw new Error(data.error || 'An unknown error occurred.'); }
             return data.text;
         } catch (error) {
             console.error("API Call Error:", error);
@@ -57,89 +52,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Xử lý sự kiện nhấn nút "Dịch"
+    // --- CẬP NHẬT: Xử lý Dịch thuật ---
     async function handleTranslate() {
-        if (!sourceText.value.trim()) {
-            alert("Vui lòng nhập văn bản cần dịch.");
-            return;
-        }
+        if (!sourceText.value.trim()) { return; }
         
         const platform = translationPlatform.value;
         const promptTemplate = PROMPTS.translate[languageSelect.value];
         const fullPrompt = `${promptTemplate}\n\n"${sourceText.value}"`;
-
         let payload = { prompt: fullPrompt };
 
-        // Xây dựng payload (dữ liệu gửi đi) dựa trên nền tảng được chọn
         if (platform === 'groq') {
             payload.service = 'groq_translate';
         } else if (platform === 'openrouter_deepseek') {
             payload.service = 'openrouter_translate';
             payload.model = TRANSLATION_MODELS.openrouter_deepseek;
+        } else if (platform === 'gemini') {
+            payload.service = 'gemini'; // Dùng service 'gemini' chung
+            payload.model = geminiModelSelect.value; // Lấy model từ dropdown của Gemini
         }
 
-        // Cập nhật giao diện để báo cho người dùng biết là đang xử lý
         translateBtn.textContent = 'Đang dịch...';
         translateBtn.disabled = true;
         translatedText.value = 'Đang chờ phản hồi...';
-
         const result = await callApi(payload);
         translatedText.value = result;
-
-        // Khôi phục lại trạng thái ban đầu của nút
         translateBtn.textContent = 'Dịch';
         translateBtn.disabled = false;
     }
 
-    // Xử lý sự kiện nhấn nút "Phân tích"
+    // Xử lý Phân tích (Cập nhật để dùng service 'gemini' chung)
     async function handleAnalyze() {
-        if (!customerMessage.value.trim()) {
-            alert("Vui lòng nhập tin nhắn của khách hàng.");
-            return;
-        }
-
+        if (!customerMessage.value.trim()) { return; }
         const fullPrompt = `${PROMPTS.analyze}\n\nCustomer Message:\n"${customerMessage.value}"`;
-        
         analyzeBtn.textContent = 'Đang phân tích...';
         analyzeBtn.disabled = true;
         analysisResult.value = 'Đang chờ phản hồi...';
-        
-        // Luôn gửi yêu cầu đến service của Gemini cho chức năng này
         const result = await callApi({
             prompt: fullPrompt,
-            service: 'gemini_analyze',
-            model: 'gemini-2.0-flash' // Model cố định cho chức năng phân tích
+            service: 'gemini', // Đổi từ 'gemini_analyze' thành 'gemini'
+            model: 'gemini-2.0-flash' 
         });
         analysisResult.value = result;
-
         analyzeBtn.textContent = 'Phân tích';
         analyzeBtn.disabled = false;
     }
 
-
-    // --- CÁC HÀM PHỤ TRỢ ---
-
-    // Xử lý sự kiện nhấn nút "Sao chép"
-    function handleCopy(event) {
-        const targetId = event.target.dataset.target;
-        const textToCopy = document.getElementById(targetId).value;
-        if (!textToCopy) return;
-
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            const originalText = event.target.textContent;
-            event.target.textContent = 'Đã sao chép!';
-            setTimeout(() => {
-                event.target.textContent = originalText;
-            }, 1500);
-        }).catch(err => {
-            console.error('Failed to copy text: ', err);
-            alert('Sao chép thất bại.');
-        });
-    }
-
-    // Hàm khởi tạo ứng dụng khi trang được tải xong
+    // --- CẬP NHẬT: Hàm Khởi tạo ---
     function init() {
-        // Đổ danh sách ngôn ngữ vào dropdown
         const languages = Object.keys(PROMPTS.translate);
         languages.forEach(lang => {
             const option = document.createElement('option');
@@ -147,11 +106,37 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = lang;
             languageSelect.appendChild(option);
         });
+
+        // Thêm sự kiện để ẩn/hiện dropdown chọn model Gemini
+        translationPlatform.addEventListener('change', () => {
+            if (translationPlatform.value === 'gemini') {
+                geminiModelWrapper.style.display = 'block';
+            } else {
+                geminiModelWrapper.style.display = 'none';
+            }
+        });
         
-        // Gán sự kiện cho các nút bấm
         translateBtn.addEventListener('click', handleTranslate);
         analyzeBtn.addEventListener('click', handleAnalyze);
         copyButtons.forEach(button => button.addEventListener('click', handleCopy));
+    }
+
+    // Các hàm phụ khác (Giữ nguyên không đổi)
+    const PROMPTS = {
+        translate: {
+            "Tiếng Anh": "Translate the following text to English, providing only the translated text and nothing else:", "Tiếng Tây Ban Nha": "Translate the following text to Spanish, providing only the translated text and nothing else:", "Tiếng Bồ Đào Nha (Brazil)": "Translate the following text to Brazilian Portuguese, providing only the translated text and nothing else:", "Tiếng Filipino": "Translate the following text to Filipino, providing only the translated text and nothing else:", "Tiếng Indonesia": "Translate the following text to Indonesian, providing only the translated text and nothing else:", "Tiếng Thái Lan": "Translate the following text to Thai, providing only the translated text and nothing else:", "Tiếng Myanmar": "Translate the following text to Burmese, providing only the translated text and nothing else:", "Tiếng Nhật": "Translate the following text to Japanese, providing only the translated text and nothing else:", "Tiếng Sinhala": "Translate the following text to Sinhala, providing only the translated text and nothing else:", "Tiếng Hindi": "Translate the following text to Hindi, providing only the translated text and nothing else:", "Tiếng Nepal": "Translate the following text to Nepali, providing only the translated text and nothing else:",
+        },
+        analyze: "Summarize the key intent of the following customer message in a few bullet points. Focus on what the customer wants (e.g., refund, information, complaint). Provide only the bullet points."
+    };
+    function handleCopy(event) {
+        const targetId = event.target.dataset.target;
+        const textToCopy = document.getElementById(targetId).value;
+        if (!textToCopy) return;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalText = event.target.textContent;
+            event.target.textContent = 'Đã sao chép!';
+            setTimeout(() => { event.target.textContent = originalText; }, 1500);
+        });
     }
 
     // Chạy hàm khởi tạo
