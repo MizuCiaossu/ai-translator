@@ -19,11 +19,10 @@
         
         <div class="form-group">
             <label for="translationModelSelect">Chọn Model Dịch</label>
-            <!-- Đổi ID và thêm lựa chọn mới -->
             <select id="translationModelSelect">
-                <option value="gemini|gemini-2.0-flash">Google (Dùng khi Openrouter bị lỗi)</option>
+                <option value="gemini|gemini-2.0-flash">Google (Gemini 2.0 Flash)</option>
                 <option value="gemini|gemini-1.5-pro-latest">Google (Gemini 1.5 Pro)</option>
-                <option value="openrouter|google/gemini-2.5-flash-lite">OpenRouter (Ưu tiên sử dụng)</option>
+                <option value="openrouter|google/gemini-2.5-flash-lite">OpenRouter (Gemini 2.5 Flash Lite)</option>
             </select>
         </div>
 
@@ -45,10 +44,21 @@
         </div>
     </div>
 
+    <!-- SỬA LỖI: Khôi phục lại đầy đủ nội dung của phần này -->
     <div class="card">
         <h2>Dịch ý của khách</h2>
-        <!-- Phần này giữ nguyên không đổi -->
-        ...
+        <div class="form-group">
+            <label for="customerMessage">Tin nhắn của khách</label>
+            <textarea id="customerMessage" placeholder="Dán tin nhắn của khách vào đây..."></textarea>
+        </div>
+        <button id="analyzeBtn">Phân tích</button>
+        <div class="form-group" style="margin-top: 20px;">
+            <label for="analysisResult">Kết quả phân tích</label>
+            <textarea id="analysisResult" readonly placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
+            <div class="copy-button-wrapper">
+                <button class="copy-button" data-target="analysisResult">Sao chép</button>
+            </div>
+        </div>
     </div>
 </div>
 <script src="script.js"></script>
