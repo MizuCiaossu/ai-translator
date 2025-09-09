@@ -1,66 +1,69 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HG Translation</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="container">
-    <header>
-        <div class="logo">
-            <img src="/logo.jpeg" alt="HG Translation Logo">
-        </div>
-    </header>
+// File: api/translate.js (Phiên bản nâng cấp hỗ trợ Gemini và OpenRouter)
 
-    <div class="card">
-        <h2>Dịch Tư vấn</h2>
+// Hàm gọi API của Gemini
+async function callGeminiAPI(prompt, apiKey, model) {
+    const API_URL = `https://generativelaunguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data?.error?.message || `Gemini API call failed`);
+    return data.candidates[0].content.parts[0].text.trim();
+}
+
+// Hàm gọi API của OpenRouter
+async function callOpenRouterAPI(prompt, apiKey, model) {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: model,
+            messages: [{ role: "user", content: prompt }],
+        }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data?.error?.message || `OpenRouter API call failed`);
+    return data.choices[0].message.content.trim();
+}
+
+// Hàm xử lý chính
+export default async function handler(req, res) {
+    if (req.method !== 'POST') {
+        return res.status(405).end('Method Not Allowed');
+    }
+
+    const { prompt, model, service } = req.body; // Thêm 'service' để phân biệt
+
+    if (!prompt || !model || !service) {
+        return res.status(400).json({ error: "Bad request: 'prompt', 'model', and 'service' are required." });
+    }
+
+    try {
+        let resultText;
         
-        <div class="form-group">
-            <label for="translationModelSelect">Chọn Model Dịch</label>
-            <select id="translationModelSelect">
-                <option value="gemini|gemini-2.0-flash">Google (Gemini 2.0 Flash)</option>
-                <option value="gemini|gemini-1.5-pro-latest">Google (Gemini 1.5 Pro)</option>
-                <option value="openrouter|google/gemini-2.5-flash-lite">OpenRouter (Gemini 2.5 Flash Lite)</option>
-            </select>
-        </div>
+        if (service === 'gemini') {
+            const apiKey = process.env.GEMINI_API_KEY;
+            if (!apiKey) return res.status(500).json({ error: "Server config error: GEMINI_API_KEY not found." });
+            resultText = await callGeminiAPI(prompt, apiKey, model);
 
-        <div class="form-group">
-            <label for="languageSelect">Dịch sang ngôn ngữ</label>
-            <select id="languageSelect"></select>
-        </div>
-        <div class="form-group">
-            <label for="sourceText">Văn bản gốc</label>
-            <textarea id="sourceText" placeholder="Nhập văn bản cần dịch..."></textarea>
-        </div>
-        <button id="translateBtn">Dịch</button>
-        <div class="form-group" style="margin-top: 20px;">
-            <label for="translatedText">Kết quả dịch</label>
-            <textarea id="translatedText" readonly placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
-            <div class="copy-button-wrapper">
-                <button class="copy-button" data-target="translatedText">Sao chép</button>
-            </div>
-        </div>
-    </div>
+        } else if (service === 'openrouter') {
+            const apiKey = process.env.OPENROUTER_API_KEY;
+            if (!apiKey) return res.status(500).json({ error: "Server config error: OPENROUTER_API_KEY not found." });
+            resultText = await callOpenRouterAPI(prompt, apiKey, model);
 
-    <!-- SỬA LỖI: Khôi phục lại đầy đủ nội dung của phần này -->
-    <div class="card">
-        <h2>Dịch ý của khách</h2>
-        <div class="form-group">
-            <label for="customerMessage">Tin nhắn của khách</label>
-            <textarea id="customerMessage" placeholder="Dán tin nhắn của khách vào đây..."></textarea>
-        </div>
-        <button id="analyzeBtn">Phân tích</button>
-        <div class="form-group" style="margin-top: 20px;">
-            <label for="analysisResult">Kết quả phân tích</label>
-            <textarea id="analysisResult" readonly placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
-            <div class="copy-button-wrapper">
-                <button class="copy-button" data-target="analysisResult">Sao chép</button>
-            </div>
-        </div>
-    </div>
-</div>
-<script src="script.js"></script>
-</body>
-</html>
+        } else {
+            return res.status(400).json({ error: "Invalid service specified." });
+        }
+        
+        return res.status(200).json({ text: resultText });
+
+    } catch (error) {
+        console.error(`Error in service '${service}':`, error.message);
+        return res.status(500).json({ error: error.message });
+    }
+}
