@@ -1,8 +1,10 @@
-// File: api/translate.js (Phiên bản nâng cấp hỗ trợ Gemini và OpenRouter)
+// File: api/translate.js (Phiên bản hoàn chỉnh hỗ trợ cả Gemini và OpenRouter)
+
+// --- CÁC HÀM GỌI API CHO TỪNG NỀN TẢNG ---
 
 // Hàm gọi API của Gemini
 async function callGeminiAPI(prompt, apiKey, model) {
-    const API_URL = `https://generativelaunguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,13 +33,14 @@ async function callOpenRouterAPI(prompt, apiKey, model) {
     return data.choices[0].message.content.trim();
 }
 
-// Hàm xử lý chính
+
+// --- HÀM XỬ LÝ CHÍNH ---
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).end('Method Not Allowed');
     }
 
-    const { prompt, model, service } = req.body; // Thêm 'service' để phân biệt
+    const { prompt, model, service } = req.body;
 
     if (!prompt || !model || !service) {
         return res.status(400).json({ error: "Bad request: 'prompt', 'model', and 'service' are required." });
@@ -48,12 +51,18 @@ export default async function handler(req, res) {
         
         if (service === 'gemini') {
             const apiKey = process.env.GEMINI_API_KEY;
-            if (!apiKey) return res.status(500).json({ error: "Server config error: GEMINI_API_KEY not found." });
+            if (!apiKey) {
+                // Nếu không tìm thấy key, trả về lỗi JSON rõ ràng
+                return res.status(500).json({ error: "Server config error: GEMINI_API_KEY not found." });
+            }
             resultText = await callGeminiAPI(prompt, apiKey, model);
 
         } else if (service === 'openrouter') {
             const apiKey = process.env.OPENROUTER_API_KEY;
-            if (!apiKey) return res.status(500).json({ error: "Server config error: OPENROUTER_API_KEY not found." });
+            if (!apiKey) {
+                // Nếu không tìm thấy key, trả về lỗi JSON rõ ràng
+                return res.status(500).json({ error: "Server config error: OPENROUTER_API_KEY not found." });
+            }
             resultText = await callOpenRouterAPI(prompt, apiKey, model);
 
         } else {
